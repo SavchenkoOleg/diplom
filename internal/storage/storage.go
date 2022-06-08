@@ -169,7 +169,7 @@ func AddNewOrder(ctx context.Context, conf *conf.Conf, oderNumber int) (resultCo
 	defer rows.Close()
 
 	var addUserID string
-	for rows.Next() {
+	if rows.Next() {
 		if err := rows.Scan(&addUserID); err != nil {
 			return 500, err
 		}

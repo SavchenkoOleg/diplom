@@ -35,9 +35,9 @@ func ServiseConf() (outConf Conf) {
 		outConf.RunAdress = RunAdress
 	}
 
-	DatabaseUri, exp := os.LookupEnv("DATABASE_URI")
+	DatabaseURI, exp := os.LookupEnv("DATABASE_URI")
 	if exp {
-		outConf.DatabaseURI = DatabaseUri
+		outConf.DatabaseURI = DatabaseURI
 	}
 
 	AccrualSystemAdress, exp := os.LookupEnv("ACCRUAL_SYSTEM_ADDRESS ")

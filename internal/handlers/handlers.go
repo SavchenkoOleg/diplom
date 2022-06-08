@@ -332,7 +332,7 @@ func HandlerWithdraw(conf *conf.Conf) http.HandlerFunc {
 		}
 
 		orderInt, err := strconv.Atoi(bodyIn.Order)
-		if bodyIn.Sum == 0 {
+		if err != nil || bodyIn.Sum == 0 {
 			http.Error(w, "uncorrect request format", 500)
 			return
 		}

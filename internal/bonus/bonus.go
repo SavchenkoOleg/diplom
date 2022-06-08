@@ -56,7 +56,13 @@ func StartFindOrderToCalc(ctx context.Context, conf *config.Conf) {
 
 func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 
+	var arrOrderNubmer []int
+
 	for number := range conf.CalcChanel {
+		arrOrderNubmer = append(arrOrderNubmer, number)
+	}
+
+	for number := range arrOrderNubmer {
 
 		CalcServAdr := conf.AccrualSystemAdress + string(rune(number))
 		fmt.Fprintln(os.Stdout, "Запрос расчета:"+CalcServAdr)
