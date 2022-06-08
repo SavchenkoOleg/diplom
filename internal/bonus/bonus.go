@@ -49,7 +49,7 @@ func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 
 func StartFindOrderToCalc(ctx context.Context, conf *config.Conf) {
 
-	for range time.Tick(time.Second) {
+	for range time.Tick(20 * time.Microsecond) {
 		FindOrderToCalc(ctx, conf)
 	}
 }

@@ -261,7 +261,14 @@ func HandlerNewOrder(conf *conf.Conf) http.HandlerFunc {
 func HandlerUserOrdersList(conf *conf.Conf) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		fmt.Fprintln(os.Stdout, "хендлер HandlerUserOrdersList")
+		fmt.Fprintln(os.Stdout, fmt.Sprint(conf.UserID))
+
 		result, err := storage.UserOrdersList(r.Context(), conf)
+
+		fmt.Fprintln(os.Stdout, "результаты HandlerUserOrdersList:")
+		fmt.Fprintln(os.Stdout, fmt.Sprint(result.Code))
+		fmt.Fprintln(os.Stdout, string(result.OrdersList))
 
 		if err != nil {
 			http.Error(w, "internal error", 500)
