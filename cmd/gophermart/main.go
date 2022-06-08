@@ -5,12 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/SavchenkoOleg/diplom/internal/bonus"
 	config "github.com/SavchenkoOleg/diplom/internal/conf"
 	"github.com/SavchenkoOleg/diplom/internal/handlers"
 	"github.com/SavchenkoOleg/diplom/internal/storage"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -46,18 +44,13 @@ func main() {
 	defer func() { close(UpChanel) }()
 
 	// сбор записей к рассчету
-	go bonus.StartFindOrderToCalc(ctx, &conf)
+	//go bonus.StartFindOrderToCalc(ctx, &conf)
 
 	// расчет и запись в БД
-	go bonus.UpdateWorker(ctx, &conf)
+	//go bonus.UpdateWorker(ctx, &conf)
 
 	// сервер
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
 	r.Use(handlers.CompressGzip)
 	r.Use(handlers.CookieMiddleware(&conf))
 	r.Use(handlers.CheckAuthorizationMiddleware(&conf, nonAutorizedAPI))
