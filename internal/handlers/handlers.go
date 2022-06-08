@@ -146,32 +146,31 @@ func HandlerRegister(conf *conf.Conf) http.HandlerFunc {
 			http.Error(w, err.Error(), 500)
 			return
 		}
-		fmt.Fprintln(os.Stdout, "HandlerRegister прочитали bodyIn")
 
 		if err := json.Unmarshal(b, &bodyIn); err != nil {
 			http.Error(w, "uncorrect request format", 400)
 			return
 		}
 
-		fmt.Fprintln(os.Stdout, "HandlerRegister размаршалили")
-
 		if bodyIn.Login == "" || bodyIn.Password == "" {
 			http.Error(w, "uncorrect request format", 400)
 			return
 		}
 
-		fmt.Fprintln(os.Stdout, "HandlerRegister проверили JSON")
-
-		code, err := storage.RegisterUser(r.Context(), conf, bodyIn.Login, bodyIn.Password)
+		result, err := storage.RegisterUser(r.Context(), conf, bodyIn.Login, bodyIn.Password)
 		if err != nil {
 			http.Error(w, "uncorrect request format", 400)
 			return
 		}
 
-		fmt.Fprintln(os.Stdout, "HandlerRegister вернули код:")
-		fmt.Fprintln(os.Stdout, fmt.Sprint(code))
-
-		w.WriteHeader(code)
+		if result.Code == 200 {
+			cookie := http.Cookie{
+				Name:   "userID",
+				Value:  result.UserID,
+				MaxAge: 3600}
+			http.SetCookie(w, &cookie)
+		}
+		w.WriteHeader(result.Code)
 
 	}
 }

@@ -103,16 +103,18 @@ func InitDB(ctx context.Context, conf *conf.Conf) (success bool, err error) {
 	return true, nil
 }
 
-func RegisterUser(ctx context.Context, conf *conf.Conf, login, password string) (code int, err error) {
+func RegisterUser(ctx context.Context, conf *conf.Conf, login, password string) (result LoginResult, err error) {
 
-	result, err := LoginUser(ctx, conf, login, password)
+	result, err = LoginUser(ctx, conf, login, password)
 
 	if err != nil {
-		return 500, err
+		result.UserID = ""
+		result.Code = 500
+		return result, err
 	}
 
 	if result.Code == 200 {
-		return 200, err
+		return result, err
 	}
 
 	userID := generateID()
@@ -126,13 +128,18 @@ func RegisterUser(ctx context.Context, conf *conf.Conf, login, password string) 
 
 	if err != nil {
 		if pgerr, ok := err.(*pgconn.PgError); ok && pgerr.Code == pgerrcode.UniqueViolation {
-			return 409, nil
+			result.UserID = ""
+			result.Code = 409
+			return result, nil
 		}
-		return 500, err
+		result.UserID = ""
+		result.Code = 500
+		return result, err
 	}
 
-	return 200, err
-
+	result.UserID = userID
+	result.Code = 200
+	return result, err
 }
 
 func LoginUser(ctx context.Context, conf *conf.Conf, login, password string) (result LoginResult, err error) {
