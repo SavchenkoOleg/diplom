@@ -168,7 +168,8 @@ func HandlerRegister(conf *conf.Conf) http.HandlerFunc {
 			return
 		}
 
-		fmt.Fprintln(os.Stdout, "HandlerRegister вернули 200")
+		fmt.Fprintln(os.Stdout, "HandlerRegister вернули код:")
+		fmt.Fprintln(os.Stdout, fmt.Sprint(code))
 
 		w.WriteHeader(code)
 
