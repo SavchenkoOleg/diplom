@@ -4,7 +4,9 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"log"
+	"os"
 
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -129,6 +131,8 @@ func CheckAuthorizationMiddleware(conf *conf.Conf, arrNonAutorizedAPI []string) 
 func HandlerRegister(conf *conf.Conf) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		fmt.Fprintln(os.Stdout, "В теле хендлера HandlerRegister")
+
 		if !strings.Contains(r.Header.Get("Content-Type"), "application/json") {
 			http.Error(w, "uncorrect request format", 400)
 			return
@@ -142,22 +146,29 @@ func HandlerRegister(conf *conf.Conf) http.HandlerFunc {
 			http.Error(w, err.Error(), 500)
 			return
 		}
+		fmt.Fprintln(os.Stdout, "HandlerRegister прочитали bodyIn")
 
 		if err := json.Unmarshal(b, &bodyIn); err != nil {
 			http.Error(w, "uncorrect request format", 400)
 			return
 		}
 
+		fmt.Fprintln(os.Stdout, "HandlerRegister размаршалили")
+
 		if bodyIn.Login == "" || bodyIn.Password == "" {
 			http.Error(w, "uncorrect request format", 400)
 			return
 		}
+
+		fmt.Fprintln(os.Stdout, "HandlerRegister проверили JSON")
 
 		code, err := storage.RegisterUser(r.Context(), conf, bodyIn.Login, bodyIn.Password)
 		if err != nil {
 			http.Error(w, "uncorrect request format", 400)
 			return
 		}
+
+		fmt.Fprintln(os.Stdout, "HandlerRegister вернули 200")
 
 		w.WriteHeader(code)
 
