@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/SavchenkoOleg/diplom/internal/bonus"
 	config "github.com/SavchenkoOleg/diplom/internal/conf"
 	"github.com/SavchenkoOleg/diplom/internal/handlers"
 	"github.com/SavchenkoOleg/diplom/internal/storage"
@@ -44,10 +45,10 @@ func main() {
 	defer func() { close(UpChanel) }()
 
 	// сбор записей к рассчету
-	//go bonus.StartFindOrderToCalc(ctx, &conf)
+	go bonus.StartFindOrderToCalc(ctx, &conf)
 
 	// расчет и запись в БД
-	//go bonus.UpdateWorker(ctx, &conf)
+	go bonus.UpdateWorker(ctx, &conf)
 
 	// сервер
 	r := chi.NewRouter()
