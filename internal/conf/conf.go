@@ -8,7 +8,7 @@ import (
 )
 
 type UpdateOrderBonusStruct struct {
-	Order   int
+	Order   string
 	Status  string
 	Accrual float32
 }
@@ -19,7 +19,7 @@ type Conf struct {
 	AccrualSystemAdress string
 	PgxConnect          pgx.Conn
 	UserID              string
-	CalcChanel          chan int
+	CalcChanel          chan string
 	UpChanel            chan UpdateOrderBonusStruct
 }
 

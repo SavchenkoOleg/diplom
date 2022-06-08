@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/SavchenkoOleg/diplom/internal/conf"
@@ -43,6 +42,29 @@ func min(x, y float32) float32 {
 	return y
 }
 
+func LuhnValid(number int64) bool {
+	return (number%10+checksum(number/10))%10 == 0
+}
+
+func checksum(number int64) int64 {
+	var luhn int64
+
+	for i := 0; number > 0; i++ {
+		cur := number % 10
+
+		if i%2 == 0 { // even
+			cur = cur * 2
+			if cur > 9 {
+				cur = cur%10 + cur/10
+			}
+		}
+
+		luhn += cur
+		number = number / 10
+	}
+	return luhn % 10
+}
+
 func stringHash(inString string) (outString string) {
 
 	src := []byte(inString)
@@ -66,13 +88,13 @@ func InitDB(ctx context.Context, conf *conf.Conf) (success bool, err error) {
 		return false, err
 	}
 
-	_, err = db.Exec(ctx, "Create table if not exists orders( userID TEXT, oderNumber INT NOT NULL, ordeDate TIMESTAMP with time zone, sum NUMERIC(15,2) NOT NULL , status TEXT NOT NULL)")
+	_, err = db.Exec(ctx, "Create table if not exists orders( userID TEXT, oderNumber TEXT NOT NULL, ordeDate TIMESTAMP with time zone, sum NUMERIC(15,2) NOT NULL , status TEXT NOT NULL)")
 	if err != nil {
 
 		return false, err
 	}
 
-	_, err = db.Exec(ctx, "Create table if not exists writingoff( userID TEXT, oderNumber INT NOT NULL, writingoffDate TIMESTAMP with time zone, sum NUMERIC(15,2) NOT NULL)")
+	_, err = db.Exec(ctx, "Create table if not exists writingoff( userID TEXT, oderNumber TEXT NOT NULL, writingoffDate TIMESTAMP with time zone, sum NUMERIC(15,2) NOT NULL)")
 	if err != nil {
 
 		return false, err
@@ -159,7 +181,7 @@ func IsUserAuthorized(ctx context.Context, conf *conf.Conf, userID string) (succ
 	return false, err
 }
 
-func AddNewOrder(ctx context.Context, conf *conf.Conf, oderNumber int) (resultCode int, err error) {
+func AddNewOrder(ctx context.Context, conf *conf.Conf, oderNumber string) (resultCode int, err error) {
 
 	rows, err := conf.PgxConnect.Query(ctx, "SELECT userID FROM orders WHERE oderNumber = $1  LIMIT 1", oderNumber)
 
@@ -214,12 +236,11 @@ func UserOrdersList(ctx context.Context, conf *conf.Conf) (result ordersResult, 
 
 	for rows.Next() {
 
-		var intOderNumber int
 		rec := orderRecord{}
-		if err := rows.Scan(&intOderNumber, &rec.Status, &rec.Sum, &rec.OrdeDate); err != nil {
+		if err := rows.Scan(&rec.OderNumber, &rec.Status, &rec.Sum, &rec.OrdeDate); err != nil {
 			return result, err
 		}
-		rec.OderNumber = strconv.Itoa(intOderNumber)
+
 		arrOrderRecord = append(arrOrderRecord, rec)
 	}
 
@@ -303,12 +324,10 @@ func UserWithdrawalsList(ctx context.Context, conf *conf.Conf) (result ordersRes
 
 	for rows.Next() {
 
-		var intOderNumber int
 		rec := writingoffRecord{}
-		if err := rows.Scan(&intOderNumber, &rec.Sum, &rec.WritingoffDate); err != nil {
+		if err := rows.Scan(&rec.OderNumber, &rec.Sum, &rec.WritingoffDate); err != nil {
 			return result, err
 		}
-		rec.OderNumber = strconv.Itoa(intOderNumber)
 		WritingoffRecords = append(WritingoffRecords, rec)
 	}
 
@@ -331,7 +350,7 @@ func WithdrawSum(ctx context.Context, conf *conf.Conf, requestedSum float32) (re
 	// запрос на списание средств
 
 	type BalanceStruct struct {
-		oderNumber int
+		oderNumber string
 		sum        float32
 	}
 
@@ -390,7 +409,7 @@ func WithdrawSum(ctx context.Context, conf *conf.Conf, requestedSum float32) (re
 	}
 
 	// распределим списание бонусов по остаткам
-	var arrOrderNubber []int
+	var arrOrderNubber []string
 	var arrWithdrawSum []float32
 
 	rs := requestedSum

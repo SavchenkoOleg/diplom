@@ -12,7 +12,6 @@ import (
 
 	"github.com/SavchenkoOleg/diplom/internal/conf"
 	"github.com/SavchenkoOleg/diplom/internal/storage"
-	"github.com/theplant/luhn"
 )
 
 type compressBodyWr struct {
@@ -218,7 +217,7 @@ func HandlerNewOrder(conf *conf.Conf) http.HandlerFunc {
 			return
 		}
 
-		var oderNumber int
+		var oderNumber string
 
 		b, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
@@ -227,14 +226,11 @@ func HandlerNewOrder(conf *conf.Conf) http.HandlerFunc {
 			return
 		}
 
-		oderNumber, err = strconv.Atoi(string(b))
+		oderNumber = string(b)
 		defer r.Body.Close()
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
 
-		if !luhn.Valid(oderNumber) {
+		oderInt64, err := strconv.ParseInt(oderNumber, 10, 64)
+		if err != nil || !storage.LuhnValid(oderInt64) {
 			http.Error(w, "uncorrect order number format", http.StatusUnprocessableEntity)
 			return
 		}
@@ -331,13 +327,9 @@ func HandlerWithdraw(conf *conf.Conf) http.HandlerFunc {
 			return
 		}
 
-		orderInt, err := strconv.Atoi(bodyIn.Order)
-		if err != nil || bodyIn.Sum == 0 {
-			http.Error(w, "uncorrect request format", 500)
-			return
-		}
+		OrderInt64, err := strconv.ParseInt(bodyIn.Order, 10, 64)
 
-		if !luhn.Valid(orderInt) {
+		if err != nil || storage.LuhnValid(OrderInt64) {
 			http.Error(w, "uncorrect order number format", http.StatusUnprocessableEntity)
 			return
 		}

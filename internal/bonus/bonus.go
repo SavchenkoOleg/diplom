@@ -35,7 +35,7 @@ func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 
 	for rows.Next() {
 
-		var number int
+		var number string
 		if err := rows.Scan(&number); err != nil {
 			return
 		}
@@ -56,7 +56,7 @@ func StartFindOrderToCalc(ctx context.Context, conf *config.Conf) {
 
 func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 
-	var arrOrderNubmer []int
+	var arrOrderNubmer []string
 
 	for number := range conf.CalcChanel {
 		arrOrderNubmer = append(arrOrderNubmer, number)
