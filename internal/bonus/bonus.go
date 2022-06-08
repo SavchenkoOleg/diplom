@@ -58,7 +58,7 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 
 	for number := range conf.CalcChanel {
 
-		CalcServAdr := conf.AccrualSystemAdress + string(number)
+		CalcServAdr := conf.AccrualSystemAdress + string(rune(number))
 		fmt.Fprintln(os.Stdout, "Запрос расчета:"+CalcServAdr)
 
 		r, err := http.Get(CalcServAdr)
@@ -68,10 +68,11 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 		}
 
 		b, err := io.ReadAll(r.Body)
-		defer r.Body.Close()
+
 		if err != nil {
 			return
 		}
+		defer r.Body.Close()
 
 		var updateBonus config.UpdateOrderBonusStruct
 

@@ -15,7 +15,7 @@ type UpdateOrderBonusStruct struct {
 
 type Conf struct {
 	RunAdress           string
-	DatabaseUri         string
+	DatabaseURI         string
 	AccrualSystemAdress string
 	PgxConnect          pgx.Conn
 	UserID              string
@@ -27,7 +27,7 @@ func ServiseConf() (outConf Conf) {
 
 	// значениея по умолчанию
 	outConf.RunAdress = "localhost:8080"
-	outConf.DatabaseUri = "user=GoLogin password=gogo dbname=GoDB sslmode=disable"
+	outConf.DatabaseURI = "user=GoLogin password=gogo dbname=GoDB sslmode=disable"
 
 	// переменные окружения
 	RunAdress, exp := os.LookupEnv("RUN_ADDRESS")
@@ -37,7 +37,7 @@ func ServiseConf() (outConf Conf) {
 
 	DatabaseUri, exp := os.LookupEnv("DATABASE_URI")
 	if exp {
-		outConf.DatabaseUri = DatabaseUri
+		outConf.DatabaseURI = DatabaseUri
 	}
 
 	AccrualSystemAdress, exp := os.LookupEnv("ACCRUAL_SYSTEM_ADDRESS ")
@@ -47,7 +47,7 @@ func ServiseConf() (outConf Conf) {
 
 	// флаги
 	flag.StringVar(&outConf.RunAdress, "a", outConf.RunAdress, "")
-	flag.StringVar(&outConf.DatabaseUri, "d", outConf.DatabaseUri, "")
+	flag.StringVar(&outConf.DatabaseURI, "d", outConf.DatabaseURI, "")
 	flag.StringVar(&outConf.AccrualSystemAdress, "r", outConf.AccrualSystemAdress, "")
 	flag.Parse()
 

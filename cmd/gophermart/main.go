@@ -18,13 +18,13 @@ func main() {
 	conf := config.ServiseConf()
 	ctx := context.Background()
 
-	nonAutorizedApi := []string{
+	nonAutorizedAPI := []string{
 		"/api/user/login",
 		"/api/user/register",
 	}
 
 	// подключение к БД
-	if conf.DatabaseUri != "" {
+	if conf.DatabaseURI != "" {
 		success, err := storage.InitDB(ctx, &conf)
 		if err != nil {
 			log.Fatal(err)
@@ -60,7 +60,7 @@ func main() {
 
 	r.Use(handlers.CompressGzip)
 	r.Use(handlers.CookieMiddleware(&conf))
-	r.Use(handlers.CheckAuthorizationMiddleware(&conf, nonAutorizedApi))
+	r.Use(handlers.CheckAuthorizationMiddleware(&conf, nonAutorizedAPI))
 
 	r.Post("/api/user/register", handlers.HandlerRegister(&conf))
 	r.Post("/api/user/login", handlers.HandlerLogin(&conf))

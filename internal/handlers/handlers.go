@@ -79,20 +79,19 @@ func CookieMiddleware(conf *conf.Conf) func(next http.Handler) http.Handler {
 			}
 
 			next.ServeHTTP(w, r)
-			return
 
 		})
 	}
 }
 
-func CheckAuthorizationMiddleware(conf *conf.Conf, arrNonAutorizedApi []string) func(next http.Handler) http.Handler {
+func CheckAuthorizationMiddleware(conf *conf.Conf, arrNonAutorizedAPI []string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 			apiPath := r.URL.Path
 
-			for _, nPath := range arrNonAutorizedApi {
-				if strings.ToUpper(apiPath) == strings.ToUpper(nPath) {
+			for _, nPath := range arrNonAutorizedAPI {
+				if strings.EqualFold(apiPath, nPath) {
 					next.ServeHTTP(w, r)
 					return
 				}
@@ -111,7 +110,7 @@ func CheckAuthorizationMiddleware(conf *conf.Conf, arrNonAutorizedApi []string) 
 				}
 
 				if !Authorized {
-					http.Error(w, "not authorized", 401)
+					http.Error(w, "not authorized", http.StatusUnauthorized)
 					return
 				}
 
@@ -121,8 +120,7 @@ func CheckAuthorizationMiddleware(conf *conf.Conf, arrNonAutorizedApi []string) 
 
 			}
 
-			http.Error(w, "not authorized", 401)
-			return
+			http.Error(w, "not authorized", http.StatusUnauthorized)
 
 		})
 	}
@@ -237,7 +235,7 @@ func HandlerNewOrder(conf *conf.Conf) http.HandlerFunc {
 		}
 
 		if !luhn.Valid(oderNumber) {
-			http.Error(w, "uncorrect order number format", 422)
+			http.Error(w, "uncorrect order number format", http.StatusUnprocessableEntity)
 			return
 		}
 
@@ -340,7 +338,7 @@ func HandlerWithdraw(conf *conf.Conf) http.HandlerFunc {
 		}
 
 		if !luhn.Valid(orderInt) {
-			http.Error(w, "uncorrect order number format", 422)
+			http.Error(w, "uncorrect order number format", http.StatusUnprocessableEntity)
 			return
 		}
 

@@ -54,7 +54,7 @@ func stringHash(inString string) (outString string) {
 
 func InitDB(ctx context.Context, conf *conf.Conf) (success bool, err error) {
 
-	db, err := pgx.Connect(ctx, conf.DatabaseUri)
+	db, err := pgx.Connect(ctx, conf.DatabaseURI)
 	if err != nil {
 		return false, err
 	}
@@ -126,7 +126,7 @@ func LoginUser(ctx context.Context, conf *conf.Conf, login, password string) (re
 	}
 	defer rows.Close()
 
-	for rows.Next() {
+	if rows.Next() {
 
 		if err := rows.Scan(&result.UserID); err != nil {
 			result.UserID = ""
@@ -153,7 +153,7 @@ func IsUserAuthorized(ctx context.Context, conf *conf.Conf, userID string) (succ
 	}
 	defer rows.Close()
 
-	for rows.Next() {
+	if rows.Next() {
 		return true, err
 	}
 	return false, err
