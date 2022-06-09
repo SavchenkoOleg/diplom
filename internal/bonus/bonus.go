@@ -105,10 +105,10 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 			return
 		}
 
-		conf.UpChanel <- updateBonus
 		log.Printf("расчет Order: %s", updateBonus.Order)
 		log.Printf("расчет Status: %s", updateBonus.Status)
-		log.Printf("расчет Accrual: %s", fmt.Sprintf("%f", 123.456))
+		log.Printf("расчет Accrual: %s", fmt.Sprintf("%f", updateBonus.Accrual))
+		conf.UpChanel <- updateBonus
 
 	}
 
@@ -117,6 +117,7 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 func UpdateWorker(ctx context.Context, conf *config.Conf) {
 
 	for rec := range conf.UpChanel {
+		log.Printf("Запись в базу расчет Accrual: %s", rec.Order)
 		updateBonusStatus(ctx, conf, rec)
 	}
 
@@ -127,6 +128,7 @@ func updateBonusStatus(ctx context.Context, conf *config.Conf, rec config.Update
 	// открываем транзакцию
 	tx, err := conf.PgxConnect.Begin(ctx)
 	if err != nil {
+		log.Printf("ошибка conf.PgxConnect.Begin : %s", err.Error())
 		return
 	}
 	defer tx.Rollback(ctx)
@@ -134,12 +136,14 @@ func updateBonusStatus(ctx context.Context, conf *config.Conf, rec config.Update
 	updateText := `UPDATE INTO orders(sum, status) VALUES ( $1, $2) WHERE odernumber = $3`
 	_, err = tx.Exec(ctx, updateText, rec.Accrual, rec.Status, rec.Order)
 	if err != nil {
+		log.Printf("ошибка UPDATE INTO orders(sum, status) VALUES ( $1, $2) WHERE odernumber = $3 : %s", err.Error())
 		return
 	}
 
 	// завершим транзакцию
 	err = tx.Commit(ctx)
 	if err != nil {
+		log.Printf("tx.Commit(ctx) : %s", err.Error())
 		return
 	}
 
