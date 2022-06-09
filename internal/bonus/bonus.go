@@ -3,10 +3,9 @@ package bonus
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
-	"os"
 	"time"
 
 	config "github.com/SavchenkoOleg/diplom/internal/conf"
@@ -65,11 +64,12 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 	for number := range arrOrderNubmer {
 
 		CalcServAdr := conf.AccrualSystemAdress + string(rune(number))
-		fmt.Fprintln(os.Stdout, "Запрос расчета:"+CalcServAdr)
+
+		log.Printf("Запрос В/К на адрес: %s", CalcServAdr)
 
 		r, err := http.Get(CalcServAdr)
 		if err != nil {
-			fmt.Fprintln(os.Stdout, "Ошибка при запросе рассчета:")
+			log.Printf("ошибка расчета В/К : %s", err.Error())
 			return
 		}
 

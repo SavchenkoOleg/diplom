@@ -3,11 +3,11 @@ package handlers
 import (
 	"compress/gzip"
 	"encoding/json"
-	"log"
 	"os"
 
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -35,7 +35,7 @@ func DecompressGZIP(next http.Handler) http.Handler {
 			gz, err := gzip.NewReader(r.Body) //	изготавливаем reader-декомпрессор GZIP
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
-				log.Println("Request Body decompression error: " + err.Error())
+				log.Printf("Request Body decompression error: : %s" + err.Error())
 				return
 			}
 			r.Body = gz //	подменяем стандартный reader из Request на декомпрессор GZIP
@@ -57,6 +57,15 @@ func CompressGzip(next http.Handler) http.Handler {
 			r.Body = gz
 			defer gz.Close()
 		}
+		next.ServeHTTP(w, r)
+
+	})
+}
+
+func LogStdout(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		log.Printf("Адрес: %s", r.URL.Path)
 		next.ServeHTTP(w, r)
 
 	})
