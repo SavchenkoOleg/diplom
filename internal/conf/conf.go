@@ -2,6 +2,7 @@ package conf
 
 import (
 	"flag"
+	"log"
 	"os"
 
 	"github.com/jackc/pgx/v4"
@@ -45,11 +46,21 @@ func ServiseConf() (outConf Conf) {
 		outConf.AccrualSystemAdress = AccrualSystemAdress
 	}
 
+	log.Printf("**** EVENT ****** ")
+	log.Printf("Установка outConf.RunAdress: %s", outConf.RunAdress)
+	log.Printf("Установка outConf.DatabaseURI: %s", outConf.DatabaseURI)
+	log.Printf("Установка outConf.AccrualSystemAdress: %s", outConf.AccrualSystemAdress)
+
 	// флаги
 	flag.StringVar(&outConf.RunAdress, "a", outConf.RunAdress, "")
 	flag.StringVar(&outConf.DatabaseURI, "d", outConf.DatabaseURI, "")
 	flag.StringVar(&outConf.AccrualSystemAdress, "r", outConf.AccrualSystemAdress, "")
 	flag.Parse()
+
+	log.Printf("**** FLAG ****** ")
+	log.Printf("Установка outConf.RunAdress: %s", outConf.RunAdress)
+	log.Printf("Установка outConf.DatabaseURI: %s", outConf.DatabaseURI)
+	log.Printf("Установка outConf.AccrualSystemAdress: %s", outConf.AccrualSystemAdress)
 
 	return outConf
 }
