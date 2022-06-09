@@ -96,6 +96,8 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 		}
 		defer r.Body.Close()
 
+		log.Printf("тело ответа : %s", string(b))
+
 		var updateBonus config.UpdateOrderBonusStruct
 
 		if err := json.Unmarshal(b, &updateBonus); err != nil {
