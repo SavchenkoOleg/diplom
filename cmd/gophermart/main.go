@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/SavchenkoOleg/diplom/internal/bonus"
 	config "github.com/SavchenkoOleg/diplom/internal/conf"
 	"github.com/SavchenkoOleg/diplom/internal/handlers"
 	"github.com/SavchenkoOleg/diplom/internal/storage"
@@ -44,10 +46,18 @@ func main() {
 	defer func() { close(UpChanel) }()
 
 	// сбор записей к рассчету
-	//go bonus.StartFindOrderToCalc(ctx, &conf)
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer func() { ticker.Stop() }()
+
+	go func() {
+		for range ticker.C {
+			bonus.ShelFindOrderToCalc(ctx, &conf)
+		}
+
+	}()
 
 	// расчет и запись в БД
-	//go bonus.UpdateWorker(ctx, &conf)
+	go bonus.UpdateWorker(ctx, &conf)
 
 	// сервер
 	r := chi.NewRouter()

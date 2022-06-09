@@ -6,10 +6,18 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"time"
 
 	config "github.com/SavchenkoOleg/diplom/internal/conf"
 )
+
+func notContains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return false
+		}
+	}
+	return true
+}
 
 func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 
@@ -46,11 +54,11 @@ func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 	}
 }
 
-func StartFindOrderToCalc(ctx context.Context, conf *config.Conf) {
+func ShelFindOrderToCalc(ctx context.Context, conf *config.Conf) {
 
-	for range time.Tick(20 * time.Microsecond) {
-		FindOrderToCalc(ctx, conf)
-	}
+	FindOrderToCalc(ctx, conf)
+	RequestBonusCalculation(ctx, conf)
+
 }
 
 func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
@@ -58,7 +66,13 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 	var arrOrderNubmer []string
 
 	for number := range conf.CalcChanel {
-		arrOrderNubmer = append(arrOrderNubmer, number)
+		if notContains(arrOrderNubmer, number) {
+			arrOrderNubmer = append(arrOrderNubmer, number)
+		}
+		if len(conf.CalcChanel) == 0 {
+			break
+		}
+
 	}
 
 	for number := range arrOrderNubmer {
