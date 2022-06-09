@@ -133,10 +133,10 @@ func updateBonusStatus(ctx context.Context, conf *config.Conf, rec config.Update
 	}
 	defer tx.Rollback(ctx)
 
-	updateText := `UPDATE INTO orders(sum, status) VALUES ( $1, $2) WHERE odernumber = $3`
+	updateText := `UPDATE orders SET sum=$1, status=$2	WHERE odernumber = $3`
 	_, err = tx.Exec(ctx, updateText, rec.Accrual, rec.Status, rec.Order)
 	if err != nil {
-		log.Printf("ошибка UPDATE INTO orders(sum, status) VALUES ( $1, $2) WHERE odernumber = $3 : %s", err.Error())
+		log.Printf("ошибка UPDATE orders SET sum=$1, status=$2	WHERE odernumber = $3 : %s", err.Error())
 		return
 	}
 
