@@ -78,7 +78,7 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 
 	for _, number := range arrOrderNubmer {
 
-		CalcServAdr := conf.AccrualSystemAdress + "/" + number
+		CalcServAdr := conf.AccrualSystemAdress + "/api/orders/" + number
 
 		log.Printf("Запрос В/К на адрес: %s", CalcServAdr)
 
