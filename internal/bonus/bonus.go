@@ -3,6 +3,7 @@ package bonus
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -90,6 +91,7 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 		b, err := io.ReadAll(r.Body)
 
 		if err != nil {
+			log.Printf("ошибка чтение тела ответа В/К : %s", err.Error())
 			return
 		}
 		defer r.Body.Close()
@@ -97,10 +99,14 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 		var updateBonus config.UpdateOrderBonusStruct
 
 		if err := json.Unmarshal(b, &updateBonus); err != nil {
+			log.Printf("ошибка Unmarshal тела ответа В/К : %s", err.Error())
 			return
 		}
 
 		conf.UpChanel <- updateBonus
+		log.Printf("расчет Order: %s", updateBonus.Order)
+		log.Printf("расчет Status: %s", updateBonus.Status)
+		log.Printf("расчет Accrual: %s", fmt.Sprintf("%f", 123.456))
 
 	}
 
