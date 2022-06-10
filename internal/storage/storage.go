@@ -437,7 +437,7 @@ func WithdrawSum(ctx context.Context, conf *conf.Conf, requestedSum float32) (re
 	// запишем списания в БД
 	insertText :=
 		`INSERT INTO writingoff(userid, odernumber, writingoffdate, sum)
-	 	VALUES ( $1, unnest($2::INT[]), $3, unnest($4::NUMERIC[]))`
+	 	VALUES ( $1, unnest($2::TEXT[]), $3, unnest($4::NUMERIC[]))`
 	_, err = tx.Exec(ctx, insertText,
 		conf.UserID, arrOrderNubber, time.Now(), arrWithdrawSum)
 	if err != nil {
