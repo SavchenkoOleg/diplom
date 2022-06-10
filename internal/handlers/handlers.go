@@ -71,29 +71,6 @@ func LogStdout(next http.Handler) http.Handler {
 	})
 }
 
-func CookieMiddleware(conf *conf.Conf) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-			cookieUserID, _ := r.Cookie("userID")
-
-			if cookieUserID != nil {
-
-				UserID := cookieUserID.Value
-				cookie := http.Cookie{
-					Name:   "userID",
-					Value:  UserID,
-					MaxAge: 3600}
-				http.SetCookie(w, &cookie)
-
-			}
-
-			next.ServeHTTP(w, r)
-
-		})
-	}
-}
-
 func CheckAuthorizationMiddleware(conf *conf.Conf, arrNonAutorizedAPI []string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -139,8 +116,6 @@ func CheckAuthorizationMiddleware(conf *conf.Conf, arrNonAutorizedAPI []string) 
 // хендлеры
 func HandlerRegister(conf *conf.Conf) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		fmt.Fprintln(os.Stdout, "В теле хендлера HandlerRegister")
 
 		if !strings.Contains(r.Header.Get("Content-Type"), "application/json") {
 			http.Error(w, "uncorrect request format", 400)

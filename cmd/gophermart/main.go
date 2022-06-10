@@ -36,7 +36,7 @@ func main() {
 	}
 
 	// канал для передачи номеров ордеров  к расчету начисления бонусов
-	CalcChanel := make(chan string, 10)
+	CalcChanel := make(chan string, 100)
 	conf.CalcChanel = CalcChanel
 	defer func() { close(CalcChanel) }()
 
@@ -63,7 +63,6 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(handlers.CompressGzip)
 	r.Use(handlers.LogStdout)
-	//r.Use(handlers.CookieMiddleware(&conf))
 	r.Use(handlers.CheckAuthorizationMiddleware(&conf, nonAutorizedAPI))
 
 	r.Post("/api/user/register", handlers.HandlerRegister(&conf))

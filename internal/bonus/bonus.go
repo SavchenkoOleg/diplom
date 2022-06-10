@@ -84,30 +84,30 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 
 		r, err := http.Get(CalcServAdr)
 		if err != nil {
-			log.Printf("ошибка расчета В/К : %s", err.Error())
+			log.Printf("Ошибка расчета В/К : %s", err.Error())
 			return
 		}
 
 		b, err := io.ReadAll(r.Body)
 
 		if err != nil {
-			log.Printf("ошибка чтение тела ответа В/К : %s", err.Error())
+			log.Printf("Ошибка чтение тела ответа В/К : %s", err.Error())
 			return
 		}
 		defer r.Body.Close()
 
-		log.Printf("тело ответа : %s", string(b))
+		log.Printf("Тело ответа : %s", string(b))
 
 		var updateBonus config.UpdateOrderBonusStruct
 
 		if err := json.Unmarshal(b, &updateBonus); err != nil {
-			log.Printf("ошибка Unmarshal тела ответа В/К : %s", err.Error())
+			log.Printf("Ошибка Unmarshal тела ответа В/К : %s", err.Error())
 			return
 		}
 
-		log.Printf("расчет Order: %s", updateBonus.Order)
-		log.Printf("расчет Status: %s", updateBonus.Status)
-		log.Printf("расчет Accrual: %s", fmt.Sprintf("%f", updateBonus.Accrual))
+		log.Printf("Расчет Order: %s", updateBonus.Order)
+		log.Printf("Расчет Status: %s", updateBonus.Status)
+		log.Printf("Расчет Accrual: %s", fmt.Sprintf("%f", updateBonus.Accrual))
 		conf.UpChanel <- updateBonus
 
 	}
@@ -128,7 +128,7 @@ func updateBonusStatus(ctx context.Context, conf *config.Conf, rec config.Update
 	// открываем транзакцию
 	tx, err := conf.PgxConnect.Begin(ctx)
 	if err != nil {
-		log.Printf("ошибка conf.PgxConnect.Begin : %s", err.Error())
+		log.Printf("Ошибка начала транзакции обновления баланса : %s", err.Error())
 		return
 	}
 	defer tx.Rollback(ctx)
@@ -136,14 +136,14 @@ func updateBonusStatus(ctx context.Context, conf *config.Conf, rec config.Update
 	updateText := `UPDATE orders SET sum=$1, status=$2	WHERE odernumber = $3`
 	_, err = tx.Exec(ctx, updateText, rec.Accrual, rec.Status, rec.Order)
 	if err != nil {
-		log.Printf("ошибка UPDATE orders SET sum=$1, status=$2	WHERE odernumber = $3 : %s", err.Error())
+		log.Printf("Ошибка запроса обновления баланса : %s", err.Error())
 		return
 	}
 
 	// завершим транзакцию
 	err = tx.Commit(ctx)
 	if err != nil {
-		log.Printf("tx.Commit(ctx) : %s", err.Error())
+		log.Printf("Ошибка завершения транзакции обновления баланса : %s", err.Error())
 		return
 	}
 
