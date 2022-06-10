@@ -63,7 +63,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(handlers.CompressGzip)
 	r.Use(handlers.LogStdout)
-	r.Use(handlers.CookieMiddleware(&conf))
+	//r.Use(handlers.CookieMiddleware(&conf))
 	r.Use(handlers.CheckAuthorizationMiddleware(&conf, nonAutorizedAPI))
 
 	r.Post("/api/user/register", handlers.HandlerRegister(&conf))
