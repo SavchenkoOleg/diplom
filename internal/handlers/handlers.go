@@ -356,7 +356,7 @@ func HandlerWithdraw(conf *conf.Conf) http.HandlerFunc {
 
 		OrderInt64, err := strconv.ParseInt(bodyIn.Order, 10, 64)
 
-		if err != nil || storage.LuhnValid(OrderInt64) {
+		if err != nil || !storage.LuhnValid(OrderInt64) {
 			http.Error(w, "uncorrect order number format", http.StatusUnprocessableEntity)
 			return
 		}
