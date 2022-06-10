@@ -270,7 +270,7 @@ func UserBalance(ctx context.Context, conf *conf.Conf) (result ordersResult, err
 
 	type BalanceRecordStruct struct {
 		Sum       float32 `json:"current"`
-		Withdrawn int     `json:"withdrawn"`
+		Withdrawn float32 `json:"withdrawn"`
 	}
 
 	var BalanceRecord BalanceRecordStruct
@@ -290,6 +290,7 @@ func UserBalance(ctx context.Context, conf *conf.Conf) (result ordersResult, err
 	rows, err := conf.PgxConnect.Query(ctx, selectText, conf.UserID)
 
 	if err != nil {
+		log.Printf("ошибка запроса баланса: %s", err.Error())
 		return result, err
 	}
 	defer rows.Close()
@@ -297,6 +298,7 @@ func UserBalance(ctx context.Context, conf *conf.Conf) (result ordersResult, err
 	for rows.Next() {
 
 		if err := rows.Scan(&BalanceRecord.Sum, &BalanceRecord.Withdrawn); err != nil {
+			log.Printf("ошибка получения результатов запроса баланса: %s", err.Error())
 			return result, err
 		}
 
@@ -304,6 +306,7 @@ func UserBalance(ctx context.Context, conf *conf.Conf) (result ordersResult, err
 
 	result.OrdersList, err = json.MarshalIndent(BalanceRecord, "", "")
 	if err != nil {
+		log.Printf("ошибка маршалинга результатов запроса баланса: %s", err.Error())
 		return result, err
 	}
 
