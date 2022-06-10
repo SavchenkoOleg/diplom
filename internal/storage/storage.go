@@ -368,6 +368,7 @@ func WithdrawSum(ctx context.Context, conf *conf.Conf, requestedSum float32) (re
 	// открываем транзакцию
 	tx, err := conf.PgxConnect.Begin(ctx)
 	if err != nil {
+		log.Printf("ошибка conf.PgxConnect.Begin : %s", err.Error())
 		return 500, err
 	}
 	defer tx.Rollback(ctx)
@@ -395,6 +396,7 @@ func WithdrawSum(ctx context.Context, conf *conf.Conf, requestedSum float32) (re
 	rows, err := tx.Query(ctx, selectText, conf.UserID)
 
 	if err != nil {
+		log.Printf("ошибка проверки баланса: %s", err.Error())
 		return 500, err
 	}
 	defer rows.Close()
@@ -439,13 +441,14 @@ func WithdrawSum(ctx context.Context, conf *conf.Conf, requestedSum float32) (re
 	_, err = tx.Exec(ctx, insertText,
 		conf.UserID, arrOrderNubber, time.Now(), arrWithdrawSum)
 	if err != nil {
-
+		log.Printf("ошибка записи списания: %s", err.Error())
 		return 500, err
 	}
 
 	// завершим транзакцию
 	err = tx.Commit(ctx)
 	if err != nil {
+		log.Printf("ошибка закрытия транзакции: %s", err.Error())
 		return 500, err
 	}
 
