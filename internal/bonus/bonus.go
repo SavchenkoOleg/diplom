@@ -35,6 +35,8 @@ func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 	}
 	defer rows.Close()
 
+	var caclNubmers []string
+
 	for rows.Next() {
 
 		var number string
@@ -42,8 +44,11 @@ func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 			return
 		}
 
-		conf.CalcChanel <- number
+		caclNubmers = append(caclNubmers, number)
+
 	}
+
+	go func() { conf.CalcChanel <- caclNubmers }()
 }
 
 func ShelFindOrderToCalc(ctx context.Context, conf *config.Conf) {
@@ -57,12 +62,14 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 
 	var arrOrderNubmer []string
 
-	for number := range conf.CalcChanel {
-		if notContains(arrOrderNubmer, number) {
-			arrOrderNubmer = append(arrOrderNubmer, number)
-		}
-		if len(conf.CalcChanel) == 0 {
-			break
+	for numbers := range conf.CalcChanel {
+		for _, number := range numbers {
+			if notContains(arrOrderNubmer, number) {
+				arrOrderNubmer = append(arrOrderNubmer, number)
+			}
+			if len(conf.CalcChanel) == 0 {
+				break
+			}
 		}
 
 	}

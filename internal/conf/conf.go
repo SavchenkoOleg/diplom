@@ -20,7 +20,7 @@ type Conf struct {
 	AccrualSystemAdress string
 	PgxConnect          pgx.Conn
 	UserID              string
-	CalcChanel          chan string
+	CalcChanel          chan []string
 	UpChanel            chan UpdateOrderBonusStruct
 }
 
