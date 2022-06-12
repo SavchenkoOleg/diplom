@@ -74,33 +74,33 @@ func stringHash(inString string) (outString string) {
 	return outString
 }
 
-func InitDB(ctx context.Context, conf *conf.Conf) (success bool, err error) {
+func InitDB(ctx context.Context, conf *conf.Conf) (err error) {
 
 	db, err := pgx.Connect(ctx, conf.DatabaseURI)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	conf.PgxConnect = *db
 
 	_, err = db.Exec(ctx, "Create table if not exists users( userID TEXT NOT NULL, login TEXT UNIQUE, hash TEXT NOT NULL)")
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	_, err = db.Exec(ctx, "Create table if not exists orders( userID TEXT, oderNumber TEXT NOT NULL, ordeDate TIMESTAMP with time zone, sum NUMERIC(15,2) NOT NULL , status TEXT NOT NULL)")
 	if err != nil {
 
-		return false, err
+		return err
 	}
 
 	_, err = db.Exec(ctx, "Create table if not exists writingoff( userID TEXT, oderNumber TEXT NOT NULL, writingoffDate TIMESTAMP with time zone, sum NUMERIC(15,2) NOT NULL)")
 	if err != nil {
 
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
 
 func RegisterUser(ctx context.Context, conf *conf.Conf, login, password string) (result LoginResult, err error) {

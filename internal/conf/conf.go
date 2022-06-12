@@ -1,9 +1,11 @@
 package conf
 
 import (
+	"context"
 	"flag"
 	"log"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 )
@@ -18,10 +20,12 @@ type Conf struct {
 	RunAdress           string
 	DatabaseURI         string
 	AccrualSystemAdress string
+	NonAutorizedAPI     []string
 	PgxConnect          pgx.Conn
 	UserID              string
 	CalcChanel          chan []string
 	UpChanel            chan UpdateOrderBonusStruct
+	Ticker              *time.Ticker
 }
 
 func ServiseConf() (outConf Conf) {
@@ -62,5 +66,31 @@ func ServiseConf() (outConf Conf) {
 	log.Printf("Установка outConf.DatabaseURI: %s", outConf.DatabaseURI)
 	log.Printf("Установка outConf.AccrualSystemAdress: %s", outConf.AccrualSystemAdress)
 
+	// EndPoint'ы, не требующие авторизации
+	outConf.NonAutorizedAPI = []string{
+		"/api/user/login",
+		"/api/user/register",
+	}
+
+	// канал для передачи номеров ордеров  к расчету начисления бонусов
+	CalcChanel := make(chan []string)
+	outConf.CalcChanel = CalcChanel
+
+	// канал для сбора рассчитаных бонусов, к записи в БД
+	UpChanel := make(chan UpdateOrderBonusStruct)
+	outConf.UpChanel = UpChanel
+
+	// тикер фоновой задачи
+	outConf.Ticker = time.NewTicker(100 * time.Millisecond)
+
 	return outConf
+}
+
+func AllDefer(ctx context.Context, conf *Conf) {
+
+	func() { conf.PgxConnect.Close(ctx) }()
+	func() { conf.Ticker.Stop() }()
+	func() { close(conf.CalcChanel) }()
+	func() { close(conf.UpChanel) }()
+
 }

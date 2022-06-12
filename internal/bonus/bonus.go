@@ -11,6 +11,21 @@ import (
 	config "github.com/SavchenkoOleg/diplom/internal/conf"
 )
 
+func StartingCalculation(ctx context.Context, conf *config.Conf) {
+
+	go func() {
+		for range conf.Ticker.C {
+			findOrderToCalc(ctx, conf)
+			requestBonusCalculation(ctx, conf)
+		}
+
+	}()
+
+	// расчет и запись в БД
+	go updateWorker(ctx, conf)
+
+}
+
 func notContains(a []string, x string) bool {
 	for _, n := range a {
 		if x == n {
@@ -20,7 +35,7 @@ func notContains(a []string, x string) bool {
 	return true
 }
 
-func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
+func findOrderToCalc(ctx context.Context, conf *config.Conf) {
 
 	selectText :=
 		`SELECT odernumber 
@@ -51,14 +66,7 @@ func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 	go func() { conf.CalcChanel <- caclNubmers }()
 }
 
-func ShelFindOrderToCalc(ctx context.Context, conf *config.Conf) {
-
-	FindOrderToCalc(ctx, conf)
-	RequestBonusCalculation(ctx, conf)
-
-}
-
-func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
+func requestBonusCalculation(ctx context.Context, conf *config.Conf) {
 
 	var arrOrderNubmer []string
 
@@ -113,7 +121,7 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 
 }
 
-func UpdateWorker(ctx context.Context, conf *config.Conf) {
+func updateWorker(ctx context.Context, conf *config.Conf) {
 
 	for rec := range conf.UpChanel {
 		log.Printf("Запись в базу расчет Accrual: %s", rec.Order)

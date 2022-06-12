@@ -71,13 +71,13 @@ func LogStdout(next http.Handler) http.Handler {
 	})
 }
 
-func CheckAuthorizationMiddleware(conf *conf.Conf, arrNonAutorizedAPI []string) func(next http.Handler) http.Handler {
+func CheckAuthorizationMiddleware(conf *conf.Conf) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 			apiPath := r.URL.Path
 
-			for _, nPath := range arrNonAutorizedAPI {
+			for _, nPath := range conf.NonAutorizedAPI {
 				if strings.EqualFold(apiPath, nPath) {
 					next.ServeHTTP(w, r)
 					return
