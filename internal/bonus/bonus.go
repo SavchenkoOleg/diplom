@@ -11,7 +11,7 @@ import (
 	config "github.com/SavchenkoOleg/diplom/internal/conf"
 )
 
-func StartingCalculation(ctx context.Context, conf *config.Conf) {
+func StartCalculation(ctx context.Context, conf *config.Conf) {
 
 	go func() {
 		for range conf.Ticker.C {

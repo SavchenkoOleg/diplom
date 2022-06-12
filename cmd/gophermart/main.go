@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// запуск фонового рассчета начисленных бонусов
-	bonus.StartingCalculation(ctx, &conf)
+	bonus.StartCalculation(ctx, &conf)
 
 	// запуск сервера
 	r := chi.NewRouter()
