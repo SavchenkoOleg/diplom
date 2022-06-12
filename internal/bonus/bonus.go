@@ -67,11 +67,12 @@ func RequestBonusCalculation(ctx context.Context, conf *config.Conf) {
 			if notContains(arrOrderNubmer, number) {
 				arrOrderNubmer = append(arrOrderNubmer, number)
 			}
-			if len(conf.CalcChanel) == 0 {
-				break
-			}
+
 		}
 
+		if len(conf.CalcChanel) == 0 {
+			break
+		}
 	}
 
 	for _, number := range arrOrderNubmer {
