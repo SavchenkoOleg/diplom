@@ -22,19 +22,13 @@ func notContains(a []string, x string) bool {
 
 func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 
-	maxQuantityOrderForCalc := cap(conf.CalcChanel) - len(conf.CalcChanel)
-
-	if maxQuantityOrderForCalc == 0 {
-		return
-	}
-
 	selectText :=
 		`SELECT odernumber 
 	FROM orders as orders
 	WHERE status IN('NEW','REGISTERED','PROCESSING') 
-	ORDER BY orders.ordedate LIMIT $1`
+	ORDER BY orders.ordedate`
 
-	rows, err := conf.PgxConnect.Query(ctx, selectText, maxQuantityOrderForCalc)
+	rows, err := conf.PgxConnect.Query(ctx, selectText)
 
 	if err != nil {
 		return
@@ -48,9 +42,6 @@ func FindOrderToCalc(ctx context.Context, conf *config.Conf) {
 			return
 		}
 
-		if cap(conf.CalcChanel) == len(conf.CalcChanel) {
-			break
-		}
 		conf.CalcChanel <- number
 	}
 }

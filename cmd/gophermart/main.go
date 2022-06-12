@@ -36,7 +36,7 @@ func main() {
 	}
 
 	// канал для передачи номеров ордеров  к расчету начисления бонусов
-	CalcChanel := make(chan string, 100)
+	CalcChanel := make(chan string)
 	conf.CalcChanel = CalcChanel
 	defer func() { close(CalcChanel) }()
 
